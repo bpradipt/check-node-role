@@ -1,0 +1,107 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
+  name: noderoles.nodeattr.power.io
+spec:
+  group: nodeattr.power.io
+  names:
+    kind: NodeRole
+    listKind: NodeRoleList
+    plural: noderoles
+    singular: noderole
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: NodeRole is the Schema for the noderoles API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: NodeRoleSpec defines the desired state of NodeRole
+          properties:
+            controller:
+              description: Specifies which NodeRole type of nodes to find in the cluster
+              type: string
+            infra:
+              type: string
+            worker:
+              type: string
+          type: object
+        status:
+          description: NodeRoleStatus defines the observed state of NodeRole
+          properties:
+            conditions:
+              description: Conditions is a list of conditions related to operator
+                reconciliation
+              items:
+                description: Condition represents the state of the operator's reconciliation
+                  functionality.
+                properties:
+                  lastHeartbeatTime:
+                    format: date-time
+                    type: string
+                  lastTransitionTime:
+                    format: date-time
+                    type: string
+                  message:
+                    type: string
+                  reason:
+                    type: string
+                  status:
+                    type: string
+                  type:
+                    description: ConditionType is the state of the operator's reconciliation
+                      functionality.
+                    type: string
+                required:
+                - status
+                - type
+                type: object
+              type: array
+            controllerNodes:
+              description: Update the variables with list of specific nodes
+              items:
+                type: string
+              type: array
+            infraNodes:
+              items:
+                type: string
+              type: array
+            workerNodes:
+              items:
+                type: string
+              type: array
+          required:
+          - controllerNodes
+          - infraNodes
+          - workerNodes
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
