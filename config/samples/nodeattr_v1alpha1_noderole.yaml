@@ -3,6 +3,6 @@ kind: NodeRole
 metadata:
   name: noderole-sample
 spec:
-  controller: "yes"
-  #worker: ""
-  #  #infra: ""
+  controller: true
+  #worker: true
+  #infra: true
