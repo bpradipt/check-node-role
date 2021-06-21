@@ -3,5 +3,6 @@ kind: NodeRole
 metadata:
   name: noderole-sample
 spec:
-  # Add fields here
-  foo: bar
+  controller: "yes"
+  #worker: ""
+  #  #infra: ""

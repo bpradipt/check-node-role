@@ -84,20 +84,36 @@ func (r *NodeRoleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	if noderole.Spec.Controller != "" {
 		if err = r.List(ctx, controllerList, controllerListOpts...); err != nil {
 			log.Error(err, "Failed to get controller nodes")
+		} else {
+			log.Info("List of controller nodes", "controllerList.Items", controllerList.Items)
+			noderole.Status.ControllerNodes = getNodeNames(controllerList.Items)
 		}
 	}
 
 	if noderole.Spec.Worker != "" {
 		if err = r.List(ctx, workerList, workerListOpts...); err != nil {
 			log.Error(err, "Failed to get worker nodes")
+		} else {
+			log.Info("List of worker nodes", "workerList.Items", workerList.Items)
+			noderole.Status.WorkerNodes = getNodeNames(workerList.Items)
 		}
 	}
 
 	if noderole.Spec.Infra != "" {
 		if err = r.List(ctx, infraList, infraListOpts...); err != nil {
 			log.Error(err, "Failed to get infra nodes")
+		} else {
+			log.Info("List of infra nodes", "infraList.Items", infraList.Items)
+			noderole.Status.InfraNodes = getNodeNames(infraList.Items)
 		}
 	}
+
+	err = r.Status().Update(ctx, noderole)
+	if err != nil {
+		log.Error(err, "Failed to update noderole status")
+		return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
@@ -105,4 +121,13 @@ func (r *NodeRoleReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&nodeattrv1alpha1.NodeRole{}).
 		Complete(r)
+}
+
+// Get NodeNames list
+func getNodeNames(nodes []corev1.Node) []string {
+	var nodeNames []string
+	for _, node := range nodes {
+		nodeNames = append(nodeNames, node.Name)
+	}
+	return nodeNames
 }

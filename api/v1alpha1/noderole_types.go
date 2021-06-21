@@ -29,9 +29,12 @@ type NodeRoleSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Specifies which NodeRole type of nodes to find in the cluster
+	// +optional
 	Controller string `json:"controller,omitempty"`
-	Worker     string `json:"worker,omitempty"`
-	Infra      string `json:"infra,omitempty"`
+	// +optional
+	Worker string `json:"worker,omitempty"`
+	// +optional
+	Infra string `json:"infra,omitempty"`
 }
 
 // NodeRoleStatus defines the observed state of NodeRole
@@ -39,9 +42,12 @@ type NodeRoleStatus struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Update the variables with list of specific nodes
-	ControllerNodes []string `json:"controllerNodes"`
-	WorkerNodes     []string `json:"workerNodes"`
-	InfraNodes      []string `json:"infraNodes"`
+	// +optional
+	ControllerNodes []string `json:"controllerNodes,omitempty"`
+	// +optional
+	WorkerNodes []string `json:"workerNodes,omitempty"`
+	// +optional
+	InfraNodes []string `json:"infraNodes,omitempty"`
 
 	// +patchMergeKey=type
 	// +patchStrategy=merge
