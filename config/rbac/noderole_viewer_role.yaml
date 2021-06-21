@@ -1,0 +1,20 @@
+# permissions for end users to view noderoles.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: noderole-viewer-role
+rules:
+- apiGroups:
+  - nodeattr.power.io
+  resources:
+  - noderoles
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - nodeattr.power.io
+  resources:
+  - noderoles/status
+  verbs:
+  - get

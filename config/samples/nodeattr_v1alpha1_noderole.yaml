@@ -1,0 +1,7 @@
+apiVersion: nodeattr.power.io/v1alpha1
+kind: NodeRole
+metadata:
+  name: noderole-sample
+spec:
+  # Add fields here
+  foo: bar

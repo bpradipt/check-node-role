@@ -1,0 +1,24 @@
+# permissions for end users to edit noderoles.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: noderole-editor-role
+rules:
+- apiGroups:
+  - nodeattr.power.io
+  resources:
+  - noderoles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nodeattr.power.io
+  resources:
+  - noderoles/status
+  verbs:
+  - get

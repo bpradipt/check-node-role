@@ -1,0 +1,11 @@
+domain: power.io
+layout: go.kubebuilder.io/v2
+projectName: check-node-role
+repo: github.com/check-node-role
+resources:
+- group: nodeattr
+  kind: NodeRole
+  version: v1alpha1
+version: 3-alpha
+plugins:
+  go.sdk.operatorframework.io/v2-alpha: {}
