@@ -30,11 +30,11 @@ type NodeRoleSpec struct {
 
 	// Specifies which NodeRole type of nodes to find in the cluster
 	// +optional
-	Controller string `json:"controller,omitempty"`
+	Controller *bool `json:"controller,omitempty"`
 	// +optional
-	Worker string `json:"worker,omitempty"`
+	Worker *bool `json:"worker,omitempty"`
 	// +optional
-	Infra string `json:"infra,omitempty"`
+	Infra *bool `json:"infra,omitempty"`
 }
 
 // NodeRoleStatus defines the observed state of NodeRole

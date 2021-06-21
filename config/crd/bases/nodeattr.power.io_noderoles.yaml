@@ -38,11 +38,11 @@ spec:
           properties:
             controller:
               description: Specifies which NodeRole type of nodes to find in the cluster
-              type: string
+              type: boolean
             infra:
-              type: string
+              type: boolean
             worker:
-              type: string
+              type: boolean
           type: object
         status:
           description: NodeRoleStatus defines the observed state of NodeRole
