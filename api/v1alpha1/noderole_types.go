@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	conditions "github.com/openshift/custom-resource-status/conditions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -25,17 +26,28 @@ import (
 
 // NodeRoleSpec defines the desired state of NodeRole
 type NodeRoleSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of NodeRole. Edit NodeRole_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Specifies which NodeRole type of nodes to find in the cluster
+	Controller string `json:"controller,omitempty"`
+	Worker     string `json:"worker,omitempty"`
+	Infra      string `json:"infra,omitempty"`
 }
 
 // NodeRoleStatus defines the observed state of NodeRole
 type NodeRoleStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// Update the variables with list of specific nodes
+	ControllerNodes []string `json:"controllerNodes"`
+	WorkerNodes     []string `json:"workerNodes"`
+	InfraNodes      []string `json:"infraNodes"`
+
+	// +patchMergeKey=type
+	// +patchStrategy=merge
+	// +optional
+	// Conditions is a list of conditions related to operator reconciliation
+	Conditions []conditions.Condition `json:"conditions,omitempty"  patchStrategy:"merge" patchMergeKey:"type"`
 }
 
 // +kubebuilder:object:root=true

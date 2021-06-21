@@ -20,11 +20,13 @@ import (
 	"context"
 
 	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	nodeattrv1alpha1 "github.com/check-node-role/api/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
 )
 
 // NodeRoleReconciler reconciles a NodeRole object
@@ -36,13 +38,66 @@ type NodeRoleReconciler struct {
 
 // +kubebuilder:rbac:groups=nodeattr.power.io,resources=noderoles,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=nodeattr.power.io,resources=noderoles/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch
 
 func (r *NodeRoleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("noderole", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("noderole", req.NamespacedName)
 
-	// your logic here
+	// Fetch the NodeRole instance
 
+	noderole := &nodeattrv1alpha1.NodeRole{}
+
+	err := r.Get(ctx, req.NamespacedName, noderole)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// Request object not found, could have been deleted after reconcile request.
+			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
+			// Return and don't requeue
+			log.Info("NodeRole resource not found. Ignoring since object must be deleted")
+			return ctrl.Result{}, nil
+		}
+		// Error reading the object - requeue the request.
+		log.Error(err, "Failed to get NodeRole")
+		return ctrl.Result{}, err
+	}
+	// NodeRole instance found
+
+	controllerList := &corev1.NodeList{}
+	controllerListOpts := []client.ListOption{
+		// node-role.kubernetes.io/master=
+		client.MatchingLabels(map[string]string{"node-role.kubernetes.io/master": ""}),
+	}
+
+	infraList := &corev1.NodeList{}
+	infraListOpts := []client.ListOption{
+		// node-role.kubernetes.io/infra=
+		client.MatchingLabels(map[string]string{"node-role.kubernetes.io/infra": ""}),
+	}
+
+	workerList := &corev1.NodeList{}
+	workerListOpts := []client.ListOption{
+		// node-role.kubernetes.io/worker=
+		client.MatchingLabels(map[string]string{"node-role.kubernetes.io/worker": ""}),
+	}
+
+	if noderole.Spec.Controller != "" {
+		if err = r.List(ctx, controllerList, controllerListOpts...); err != nil {
+			log.Error(err, "Failed to get controller nodes")
+		}
+	}
+
+	if noderole.Spec.Worker != "" {
+		if err = r.List(ctx, workerList, workerListOpts...); err != nil {
+			log.Error(err, "Failed to get worker nodes")
+		}
+	}
+
+	if noderole.Spec.Infra != "" {
+		if err = r.List(ctx, infraList, infraListOpts...); err != nil {
+			log.Error(err, "Failed to get infra nodes")
+		}
+	}
 	return ctrl.Result{}, nil
 }
 
