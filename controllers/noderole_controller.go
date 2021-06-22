@@ -81,7 +81,7 @@ func (r *NodeRoleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		client.MatchingLabels(map[string]string{"node-role.kubernetes.io/worker": ""}),
 	}
 
-	if noderole.Spec.Controller != nil {
+	if noderole.Spec.Controller != nil && *noderole.Spec.Controller {
 		if err = r.List(ctx, controllerList, controllerListOpts...); err != nil {
 			log.Error(err, "Failed to get controller nodes")
 		} else {
@@ -90,7 +90,7 @@ func (r *NodeRoleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 	}
 
-	if noderole.Spec.Worker != nil {
+	if noderole.Spec.Worker != nil && *noderole.Spec.Worker {
 		if err = r.List(ctx, workerList, workerListOpts...); err != nil {
 			log.Error(err, "Failed to get worker nodes")
 		} else {
@@ -99,7 +99,7 @@ func (r *NodeRoleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 	}
 
-	if noderole.Spec.Infra != nil {
+	if noderole.Spec.Infra != nil && *noderole.Spec.Infra {
 		if err = r.List(ctx, infraList, infraListOpts...); err != nil {
 			log.Error(err, "Failed to get infra nodes")
 		} else {
