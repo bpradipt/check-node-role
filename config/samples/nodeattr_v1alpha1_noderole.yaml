@@ -4,5 +4,5 @@ metadata:
   name: noderole-sample
 spec:
   controller: true
-  #worker: true
-  #infra: true
+  worker: true
+  infra: true
