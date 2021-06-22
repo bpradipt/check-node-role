@@ -22,8 +22,12 @@ import (
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	nodeattrv1alpha1 "github.com/check-node-role/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -85,7 +89,7 @@ func (r *NodeRoleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		if err = r.List(ctx, controllerList, controllerListOpts...); err != nil {
 			log.Error(err, "Failed to get controller nodes")
 		} else {
-			log.Info("List of controller nodes", "controllerList.Items", controllerList.Items)
+			log.Info("Got list of controller nodes")
 			noderole.Status.ControllerNodes = getNodeNames(controllerList.Items)
 		}
 	}
@@ -94,7 +98,7 @@ func (r *NodeRoleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		if err = r.List(ctx, workerList, workerListOpts...); err != nil {
 			log.Error(err, "Failed to get worker nodes")
 		} else {
-			log.Info("List of worker nodes", "workerList.Items", workerList.Items)
+			log.Info("Got list of worker nodes")
 			noderole.Status.WorkerNodes = getNodeNames(workerList.Items)
 		}
 	}
@@ -103,7 +107,7 @@ func (r *NodeRoleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		if err = r.List(ctx, infraList, infraListOpts...); err != nil {
 			log.Error(err, "Failed to get infra nodes")
 		} else {
-			log.Info("List of infra nodes", "infraList.Items", infraList.Items)
+			log.Info("Got list of infra nodes")
 			noderole.Status.InfraNodes = getNodeNames(infraList.Items)
 		}
 	}
@@ -120,6 +124,25 @@ func (r *NodeRoleReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 func (r *NodeRoleReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&nodeattrv1alpha1.NodeRole{}).
+		Watches(&source.Kind{Type: &corev1.Node{}}, &handler.EnqueueRequestsFromMapFunc{
+			ToRequests: handler.ToRequestsFunc(func(nodeRoleObj handler.MapObject) []reconcile.Request {
+				nodeRoleList := &nodeattrv1alpha1.NodeRoleList{}
+				err := r.Client.List(context.TODO(), nodeRoleList)
+				if err != nil {
+					return []reconcile.Request{}
+				}
+				reconcileRequests := make([]reconcile.Request, len(nodeRoleList.Items))
+				for _, noderole := range nodeRoleList.Items {
+					reconcileRequests = append(reconcileRequests, reconcile.Request{
+						NamespacedName: types.NamespacedName{
+							Name:      noderole.Name,
+							Namespace: noderole.Namespace,
+						},
+					})
+				}
+				return reconcileRequests
+			}),
+		}).
 		Complete(r)
 }
 
