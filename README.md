@@ -13,6 +13,10 @@ $ git clone https://github.com/bpradipt/check-node-role.git
 $ cd check-node-role
 $ make install && make deploy IMG=quay.io/bpradipt/check-node-role
 ```
+For deploying on Power (`ppc64le`) use the following command
+```
+$ make install && make deploy IMG=quay.io/bpradipt/check-node-role:ppc64le
+```
 
 This will deploy the controller POD in the `check-node-role-system`
 namespace
@@ -73,3 +77,4 @@ $ make docker-push IMG=${REGISTRY}/${REGISTRY_USER}/check-node-role
 ```
 $ make install && make deploy IMG=${REGISTRY}/${REGISTRY_USER}/check-node-role
 ```
+
